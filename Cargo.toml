@@ -1,0 +1,55 @@
+[package]
+name = "haproxy-spoa-ip-reputation-firehol"
+version = "0.1.1"
+edition = "2024"
+build = "build.rs"
+
+[dependencies]
+haproxy-spoe = { git = "https://github.com/git001/haproxy-spoe-rs.git"}
+
+tokio = { version = "1", features = [
+    "macros",
+    "net",
+    "rt-multi-thread",
+    "signal",
+] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+geoip2 = { path = "vendor/geoip2-rs" }
+notify = "8.2.0"
+arc-swap = "1.7"
+chrono = "0.4.45"
+tracing = "0.1"
+async-watcher = "0.4.0"
+clap = { version = "4.6.6", features = ["derive", "env"] }
+tokio-cron-scheduler = "0.15.1"
+git2 = { version = "0.21.0", features = ["vendored-openssl", "https"] }
+rayon = "1.10"
+mmdb-writer = "0.1"
+serde = { version = "1.0.229", features = ["derive"] }
+yoke = { version = "0.8", features = ["derive"] }
+prometheus = "0.14.0"
+lazy_static = "1.5.0"
+hyper = { version = "1.11.1", features = ["full"] }
+hyper-util = {version = "0.1.20", features = ["full"]}
+anyhow = { version = "1.0.104", features = ["backtrace"] }
+
+[build-dependencies]
+git2 = "0.21"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = "0.2"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = false
+
+[profile.release.package."*"]
+opt-level = 3
+
+[profile.dev-opt]
+inherits = "release"
+debug = true
+strip = false

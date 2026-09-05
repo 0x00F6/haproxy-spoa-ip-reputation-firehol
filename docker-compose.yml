@@ -1,0 +1,83 @@
+services:
+
+  haproxy:
+    image: haproxy:3.4-alpine
+    container_name: haproxy
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8404:8404"
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./haproxy/haproxy-spoa-ip-reputation-firehol.cfg:/etc/haproxy/haproxy-spoa-ip-reputation-firehol.cfg:ro
+    depends_on:
+      spoa:
+        condition: service_healthy
+    networks:
+      - proxy
+
+  spoa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spoa
+    restart: unless-stopped
+    environment:
+      RUST_BACKTRACE: "0"
+      LOG_LEVEL: "info"
+      SPOA_LISTEN_ADRESS: "0.0.0.0:9000"
+      SPOA_LISTEN_ADRESS_METRICS_PROMETHEUS: "0.0.0.0:8405"
+      DROP_BY_CATEGORY: "abuse,anonymizers,attacks"
+      FIREHOL_REPO_URL: "https://github.com/firehol/blocklist-ipsets.git"
+      FIREHOL_IGNIORE_COUNTRY: "true"
+      FIREHOL_UPDATE_CRON_JOB: "@hourly"
+    expose:
+      - "9000"
+    ports:
+      - "8405:8405"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z -w1 $${SPOA_LISTEN_ADRESS%:*} $${SPOA_LISTEN_ADRESS#*:}"]
+      interval: 2s
+      timeout: 2s
+      retries: 150 # 5min
+      start_period: 2s
+    networks:
+      - proxy
+
+  prometheus:
+    image: prom/prometheus:v3.14.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    restart: unless-stopped
+    networks:
+      - proxy
+
+  grafana:
+    image: grafana/grafana:10.1.7
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - proxy
+      
+volumes:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  proxy:
+    driver: bridge
