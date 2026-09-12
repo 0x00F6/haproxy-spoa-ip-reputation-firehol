@@ -1,0 +1,41 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index 28e35b4..9deeb7c 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -6,5 +6,5 @@ mod reader;
+ 
+ pub use errors::Error;
+ pub use reader::{
+-    AnonymousIP, City, ConnectionType, Country, Domain, Enterprise, Reader, ASN, ISP,
++    AnonymousIP, City, ConnectionType, Country, Domain, Enterprise, FireholEntry, Reader, ASN, ISP,
+ };
+diff --git a/src/reader.rs b/src/reader.rs
+index dafe0bf..de3b7c7 100644
+--- a/src/reader.rs
++++ b/src/reader.rs
+@@ -2,8 +2,8 @@ use std::marker::PhantomData;
+ use std::net::IpAddr;
+ 
+ use crate::decoder::{
+-    read_bool, read_control, read_pointer, read_str, read_usize, DATA_TYPE_MAP, DATA_TYPE_POINTER,
+-    DATA_TYPE_SLICE,
++    read_array, read_bool, read_control, read_pointer, read_str, read_usize, DATA_TYPE_MAP,
++    DATA_TYPE_POINTER, DATA_TYPE_SLICE,
+ };
+ use crate::errors::Error;
+ use crate::metadata::Metadata;
+@@ -249,3 +249,14 @@ pub struct ASN<'a> {
+ pub struct Domain<'a> {
+     pub domain: Option<&'a str>,
+ }
++
++#[reader("Firehol-DB")]
++#[derive(Default, Clone, Debug)]
++pub struct FireholEntry<'a> {
++    pub file_name: Vec<&'a str>,
++    pub source_file_date_rfc3339: Vec<&'a str>,
++    pub list_source_url: Vec<&'a str>,
++    pub maintainer_url: Vec<&'a str>,
++    pub maintainer: Vec<&'a str>,
++    pub category: Vec<&'a str>,
++}

@@ -1,0 +1,14 @@
+# Allow-list: the Dockerfile only needs the files below. Everything else (target/ with several GB of
+# build artefacts, the FireHOL clone, *.mmdb, .git/, IDE files) would otherwise be sent to the
+# builder on every `docker build`.
+*
+!Cargo.toml
+!Cargo.lock
+!build.rs
+!Makefile
+!geoip2-rs.patch
+!.cargo
+!src
+# Cargo validates the [[bench]] target declared in Cargo.toml even for `cargo build`.
+!benches
+firehol-blocklist-ipsets/

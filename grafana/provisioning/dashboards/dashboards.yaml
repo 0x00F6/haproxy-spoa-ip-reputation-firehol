@@ -1,0 +1,24 @@
+
+  apiVersion: 1
+
+  providers:
+    - name: HAProxy
+      orgId: 1
+      folder: HAProxy
+      type: file
+      disableDeletion: true
+      updateIntervalSeconds: 30
+      allowUiUpdates: false
+      options:
+        path: /var/lib/grafana/dashboards
+
+    - name: HAProxy SPOA IP Reputation
+      orgId: 1
+      folder: HAProxy
+      type: file
+      disableDeletion: true
+      updateIntervalSeconds: 30
+      allowUiUpdates: false
+      options:
+        path: /var/lib/grafana/dashboards
+

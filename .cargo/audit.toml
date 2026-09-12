@@ -1,0 +1,10 @@
+# cargo-audit configuration (https://docs.rs/cargo-audit)
+#
+# Ignored advisories below are dev-only: they are reached only through the
+# benchmark/profiling dependency chain (pprof -> inferno -> quick-xml) and are
+# never compiled into the shipped HAProxy SPOA binary.
+[advisories]
+ignore = [
+    "RUSTSEC-2026-0194", # quick-xml (dev-only, via pprof/inferno)
+    "RUSTSEC-2026-0195", # quick-xml (dev-only, via pprof/inferno)
+]

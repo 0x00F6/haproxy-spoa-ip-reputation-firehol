@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: haproxy
+    static_configs:
+      - targets:
+          - haproxy:8404
+  - job_name: spoa
+    static_configs:
+      - targets:
+          - spoa:8405
